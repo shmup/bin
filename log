@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+JOURNALDIR="$HOME/brain/journals"
+TODAY=$(date +'%Y_%m_%d')
+JOURNALFILE="$JOURNALDIR/${TODAY}.md"
+
+append_log() {
+  # Append provided text to the journal file and display its content
+  echo "$@" >>"$JOURNALFILE"
+  cat "$JOURNALFILE"
+}
+
+main() {
+  if [[ $# -ne 0 ]]; then
+    append_log "$@"
+    exit 0
+  else
+    vim "$JOURNALFILE"
+  fi
+}
+
+main "$@"
