@@ -1,4 +1,5 @@
 *
-!ocr
+!defer
 !fetchtext
+!ocr
 !.gitignore

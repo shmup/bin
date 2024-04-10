@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# https://cedwards.xyz/defer-for-shell/
+
+DEFER=
+defer() {
+    DEFER="$*; ${DEFER}"
+    trap "{ $DEFER }" EXIT HUP INT QUIT TERM
+}
