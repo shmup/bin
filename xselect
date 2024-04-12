@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+screensaver_dir="/usr/libexec/xscreensaver"
+index_file="$HOME/.current_screensaver_index"
+screensavers=($(ls $screensaver_dir))
+
+[[ -f "$index_file" ]] && read currentIndex <"$index_file" || currentIndex=0
+
+update_index() { echo $currentIndex >"$index_file"; }
+kill_current_screensaver() { pkill -f '/usr/libexec/xscreensaver/'; }
+
+case "$1" in
+  random) currentIndex=$((RANDOM % ${#screensavers[@]})) ;;
+  next) currentIndex=$(((currentIndex + 1) % ${#screensavers[@]})) ;;
+  prev) currentIndex=$(((currentIndex - 1 + ${#screensavers[@]}) % ${#screensavers[@]})) ;;
+  stop)
+    kill_current_screensaver
+    feh --bg-scale $HOME/tmp/wallpaper.png
+    exit
+    ;;
+esac
+
+update_index
+kill_current_screensaver
+/usr/libexec/xscreensaver/${screensavers[$currentIndex]} --root &
