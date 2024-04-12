@@ -1,0 +1,45 @@
+#!/usr/bin/env python
+
+import argparse
+from datetime import datetime
+import os
+import re
+import requests
+import xml.etree.ElementTree as ET
+
+# Argument parser setup for -p/--playing option
+parser = argparse.ArgumentParser(description="Fetch and display current playing or play it.")
+parser.add_argument("-p", "--playing", help="Display what's currently playing without playing it.", action="store_true")
+args = parser.parse_args()
+
+def fetch_playing_info():
+    response = requests.get('https://wrestling.social/@retrostrange.rss')
+    root = ET.fromstring(response.content)
+
+    pubDate = root.find('.//item/pubDate').text
+    description = root.find('.//item/description').text
+
+    # Convert date and clean description
+    date_obj = datetime.strptime(pubDate, '%a, %d %b %Y %H:%M:%S %z')
+    short_date = date_obj.strftime('%m-%d-%y')
+    clean_description = re.sub('<[^<]+?>', '', description).strip()
+
+    # Extract movie title and duration from the cleaned description
+    match = re.search(r'(.*), duration (.*)', clean_description)
+    
+    if match:
+        title_duration = f"{match.group(1)}, duration {match.group(2)}"
+
+        return f"{short_date} - {title_duration}"
+    
+def main():
+    final_output = fetch_playing_info()
+    
+    if args.playing:
+        print(final_output)
+    else:
+        print(final_output)
+        os.system("mpv https://live.retrostrange.com &> /dev/null &")
+
+if __name__ == "__main__":
+   main()
