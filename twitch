@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+
+# $HOME/bin/twitch
+# fuzzy filtering https://github.com/jhawthorn/fzy
+# streams via mpv and https://github.com/streamlink/streamlink
+# twitch chat via irc https://gist.github.com/shmup/0a144a44a24aadc8679bc2e5889e7284
+# may also be interested in https://streamlink.github.io/streamlink-twitch-gui/
+
+# usage: twitch
+PLAYER="mpv"
+PLAYER_ARGS="--really-quiet"
+
+# usage: twitch browse
+OPENER=$([[ "$OSTYPE" != "darwin"* ]] && echo xdg-open || echo open)
+[[ $1 == "browse" ]] && $OPENER "https://www.twitch.tv/directory/following"
+
+TWITCHES=(
+	"1dnsl"
+	"bgcozycave"
+	"blindirl"
+	"civictv83"
+	"civictv85"
+	"dkutelevision"
+	"evo"
+	"exportz"
+	"forgotten_vcr"
+	"fort90filmclub"
+	"gamesdonequick"
+	"goodbadflicks"
+	"kinorelax"
+	"kpblive"
+	"mediocrefilms"
+	"missmollyrogers"
+	"mondaymoviemadness"
+	"oldtimeycomputershow"
+	"pisshospital"
+	"retropals"
+	"ryan_hart"
+	"segfest"
+	"sickovision"
+	"socpens"
+	"thatweekinsnl"
+	"themidnightnow"
+	"unlimitedhangouts"
+	"utopiadistrict"
+	"watchmeforever"
+	"waveydelights"
+	"wondervillenyc"
+        "exptv_"
+        "foxcitiespinball"
+        "membtv"
+        "midnightsumo"
+        "rifftrax"
+        "saltybet"
+        "sectionthirtyone"
+        "triciaisabirdy"
+)
+
+SELECTION=$(printf "%s\n" "${TWITCHES[@]}" | fzy -l 40)
+
+[[ -z $SELECTION ]] && echo "xoxo" && exit 0
+
+streamlink \
+	--player "$PLAYER" \
+	--player-args "$PLAYER_ARGS" \
+	--quiet \
+	--default-stream best \
+	--retry-streams 3 \
+	--url "twitch.tv/$SELECTION" &
+
+# https://no.dungeon.red/Rt
