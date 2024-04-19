@@ -1,25 +1,71 @@
 #!/usr/bin/env bash
 
+trap "echo -ne '\033[?25h'" EXIT
+
 screensaver_dir="/usr/libexec/xscreensaver"
 index_file="$HOME/.current_screensaver_index"
-screensavers=($(ls $screensaver_dir))
+screensavers=($(ls $screensaver_dir |
+  grep -v 'xscreensaver' |
+  grep -v 'vidwhacker'))
 
-[[ -f "$index_file" ]] && read currentIndex <"$index_file" || currentIndex=0
+if [[ -f "$index_file" ]]; then
+  read currentIndex <"$index_file"
+else
+  currentIndex=0
+fi
 
-update_index() { echo $currentIndex >"$index_file"; }
-kill_current_screensaver() { pkill -f '/usr/libexec/xscreensaver/'; }
+update_index() {
+  echo $currentIndex >"$index_file"
+}
+
+kill_current_screensaver() {
+  pkill -f '/usr/libexec/xscreensaver/'
+}
 
 case "$1" in
-  random) currentIndex=$((RANDOM % ${#screensavers[@]})) ;;
-  next) currentIndex=$(((currentIndex + 1) % ${#screensavers[@]})) ;;
-  prev) currentIndex=$(((currentIndex - 1 + ${#screensavers[@]}) % ${#screensavers[@]})) ;;
-  stop)
-    kill_current_screensaver
-    feh --bg-scale $HOME/tmp/wallpaper.png
-    exit
-    ;;
+fuzz)
+  screensaver=$(printf "%s\n" "${screensavers[@]}" | fzf)
+  if [[ -z "$screensaver" ]]; then exit; fi
+  currentIndex=$(printf "%s\n" "${screensavers[@]}" | grep -n "$screensaver" | cut -d: -f1)
+  ((currentIndex--)) # decrement by 1 because arrays are 0-indexed
+  ;;
+next)
+  ((currentIndex = (currentIndex + 1) % ${#screensavers[@]}))
+  ;;
+prev)
+  ((currentIndex = (currentIndex - 1 + ${#screensavers[@]}) % ${#screensavers[@]}))
+  ;;
+random)
+  currentIndex=$((RANDOM % ${#screensavers[@]}))
+  ;;
+status)
+  echo "${screensavers[$currentIndex]}"
+  exit
+  ;;
+stop)
+  kill_current_screensaver
+  feh --bg-scale $HOME/tmp/wallpaper.png
+  exit
+  ;;
+watch)
+  echo -ne "\033[?25l" # hide cursor
+  while true; do
+    echo -ne "\033[0;0H\r\n" # move cursor to top left
+    ps aux | grep '[/]usr/libexec/xscreensaver/' |
+      awk '{cpu=$3; mem=$6; cmd=$11;
+            sub(".*/", "", cmd);
+            mem_format=mem<1024?"K":(mem/=1024)<1024?"M":(mem/=1024)"G";
+            printf "%s %.1f%% %d%s\n", cmd, cpu, mem+0.5, mem_format}'
+    sleep 2
+  done
+  ;;
+*)
+  echo "Usage: $0 {fuzz|next|prev|random|status|stop|watch}"
+  exit 1
+  ;;
 esac
 
 update_index
 kill_current_screensaver
+echo "${screensavers[$currentIndex]}"
 /usr/libexec/xscreensaver/${screensavers[$currentIndex]} --root &
