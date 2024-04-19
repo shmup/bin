@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+# fzfont helps you test figlet fonts and copy to clipboard
+# uses figlet fzf xclip
+
+if ! command -v figlet &>/dev/null || ! command -v fzf &>/dev/null; then
+  echo "Requires figlet and fzf" && exit 1
+fi
+
+FONT_DIR="$HOME/src/figlet-fonts/fonts"
+LAST_FONT_FILE="$HOME/.fzfont-last"
+cd "$FONT_DIR" || exit
+
+function clipboard() {
+  xclip -selection clipboard
+}
+
+input_text="$*"
+last_font=""
+
+if [ -z "$input_text" ]; then
+  clear && echo "Enter text and press return"
+  read -r input_text
+fi
+
+if [ -f "$LAST_FONT_FILE" ]; then
+  last_font=$(<"$LAST_FONT_FILE")
+fi
+
+font=$(find . -type f -name '*.flf' |
+  sort |
+  fzf --preview-window=right,70% --preview "figlet -f {} '$input_text'" --query="$last_font")
+
+if [[ $font ]]; then
+  echo "$font" >"$LAST_FONT_FILE"
+  clear && figlet -f "$font" "$input_text" | tee /dev/tty | clipboard
+  echo "Press any key to continue..." && read -rsn1
+fi

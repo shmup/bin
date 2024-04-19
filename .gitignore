@@ -1,6 +1,7 @@
 *
 !defer
 !fetchtext
+!fzfont
 !log
 !ocr
 !retrostrange
