@@ -2,6 +2,8 @@
 !defer
 !fetchtext
 !fzfont
+!fzf-tmux
+!images
 !log
 !ocr
 !retrostrange
