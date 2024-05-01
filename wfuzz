@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+# wfuzz. quick window switcher using dmenu to list all windows
+#
+# use a thing like this in i3: bindsym $mod+g exec wfuzz
+
+# use wmctrl to list all windows, cut out ID and title
+windows=$(wmctrl -l | awk '{$3=""; $2=""; print $0}')
+
+# use dmenu to select a window
+target=$(echo "$windows" | dmenu -i -l 10 -fn Monospace-18)
+
+# parse the ID, use wmctrl to switch to that window
+target_id=$(echo "$target" | cut -f 1 -d " ")
+wmctrl -i -a "$target_id"
+
