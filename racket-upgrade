@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+# echos latest x86_64 linux racket installer url
+
+URL="https://download.racket-lang.org/"
+HTML=$(curl -s $URL)
+
+FILE=$(echo "$HTML" | grep -oP 'racket-[0-9]+\.[0-9]+-x86_64-linux-cs\.sh' | head -n 1)
+VERSION=$(echo "$FILE" | grep -oP '[0-9]+\.[0-9]+')
+
+FULL_URL="https://download.racket-lang.org/installers/$VERSION/$FILE"
+
+echo $FULL_URL
