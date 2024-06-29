@@ -1,4 +1,5 @@
 *
+!battery
 !defer
 !fetchtext
 !fzfont
@@ -13,3 +14,4 @@
 !xselect
 !xselect-watch
 !.gitignore
+!dungeon

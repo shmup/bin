@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+capacity=$(cat /sys/class/power_supply/BAT1/capacity)
+sleep_level=4
+warning_level=10
+
+function notify {
+  msg=${1:-"Your battery is critically low at ${capacity}%!"}
+
+  notify-send \
+    --icon ~/Pictures/dunst/battery-low.png \
+    -t 99999 \
+    -h string:bgcolor:\#000000 -h string:fgcolor:\#ff0000 \
+    "Low Battery" "$msg"
+}
+
+[[ "$capacity" -gt "$warning_level" ]] && exit 0
+
+woke
+
+if [ "$capacity" -le "$sleep_level" ]; then
+  notify "Dangerously low: $capacity%! Suspending in 5 seconds"
+  sleep 5
+  systemctl suspend
+else
+  notify "Battery low: $capacity%!"
+fi
