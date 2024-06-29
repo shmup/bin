@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# toggles dunst notifications
+# usage: toggle-dunst [start|stop] [-q|--quiet]
+
+QUIET_MODE=0
+
+start_notifications() {
+  dunstctl set-paused false
+  [[ $QUIET_MODE -eq 0 ]] && echo "😀"
+}
+
+stop_notifications() {
+  dunstctl set-paused true
+  [[ $QUIET_MODE -eq 0 ]] && echo "😴"
+}
+
+toggle_notifications() {
+  if [ "$(dunstctl is-paused)" = "true" ]; then
+    start_notifications
+  else
+    stop_notifications
+  fi
+}
+
+for arg in "$@"; do
+  if [ "$arg" = "-q" ] || [ "$arg" = "--quiet" ]; then
+    QUIET_MODE=1
+    break
+  fi
+done
+
+case "$1" in
+start)
+  start_notifications
+  ;;
+stop)
+  stop_notifications
+  ;;
+*)
+  toggle_notifications
+  ;;
+esac

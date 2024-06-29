@@ -10,6 +10,8 @@
 !ocr
 !racket-upgrade
 !retrostrange
+!toggle-autolock
+!toggle-dunst
 !twitch
 !wfuzz
 !woke

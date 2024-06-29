@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# toggles autolock and dunst notifications
+# usage: toggle-autolock [start|stop] [-q|--quiet]
+
+QUIET_MODE=0
+
+start_autolock() {
+  xautolock -time 5 -locker lock >/dev/null 2>&1 &
+  [[ $QUIET_MODE -eq 0 ]] && echo "😀"
+}
+
+stop_autolock() {
+  kill "$(pgrep -x xautolock)" >/dev/null 2>&1 &
+  [[ $QUIET_MODE -eq 0 ]] && echo "😴"
+}
+
+toggle_autolock() {
+  if pgrep -x xautolock >/dev/null; then
+    stop_autolock
+  else
+    start_autolock
+  fi
+}
+
+for arg in "$@"; do
+  if [ "$arg" = "-q" ] || [ "$arg" = "--quiet" ]; then
+    QUIET_MODE=1
+    break
+  fi
+done
+
+case "$1" in
+start)
+  start_autolock
+  ;;
+stop)
+  stop_autolock
+  ;;
+*)
+  toggle_autolock
+  ;;
+esac
