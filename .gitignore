@@ -1,5 +1,6 @@
 *
 !battery
+!chill
 !defer
 !fetchtext
 !fzfont
@@ -11,6 +12,7 @@
 !retrostrange
 !twitch
 !wfuzz
+!woke
 !xselect
 !xselect-watch
 !.gitignore

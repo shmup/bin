@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+toggle-autolock stop
+toggle-dunst stop -q
