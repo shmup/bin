@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 capacity=$(cat /sys/class/power_supply/BAT1/capacity)
+status=$(cat /sys/class/power_supply/BAT1/status)
 sleep_level=4
 warning_level=10
 
@@ -15,6 +16,7 @@ function notify {
 }
 
 [[ "$capacity" -gt "$warning_level" ]] && exit 0
+[[ "$status" == "Charging" ]] && exit 0
 
 woke
 
